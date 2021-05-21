@@ -1,4 +1,4 @@
-users_dict = [{'id': 1,
+users_list = [{'id': 1,
                'username': 'user1',
                'email': 'user1@test.com',
                'department': 'frontend',
