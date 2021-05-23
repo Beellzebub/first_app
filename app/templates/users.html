@@ -1,13 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{title}}</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}
+    {{title}}
+{% endblock %}
+
+{% block body %}
+    <table>
+        <tr>
+            <th><b>ID</b></th>
+            <th><b>Name</b></th>
+            <th><b>Email</b></th>
+            <th><b>Department</b></th>
+            <th><b>Date</b></th>
+        </tr>
+    </table>
     {% for user in users %}
-    <div><p><b> Name: </b> {{user['username']}} </p></div>
-    <div><p><b> Email: </b> {{user['email']}} </p></div>
+    <table>
+        <tr>
+        <th> {{user['id']}} </th>
+        <th> {{user['username']}} </th>
+        <th> {{user['email']}} </th>
+        <th> {{user['department']}} </th>
+        <th> {{user['date_joined']}} </th>
+        </tr>
+    </table>
     {% endfor %}
-</body>
-</html>
+{% endblock %}

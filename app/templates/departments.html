@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}
+    {{title}}
+{% endblock %}
+
+{% block body %}
+    <div>
+        <dl>
+            <dt><b> Departments: </b></dt>
+            {% for user in users %}
+                <dd>{{user['department']}}</dd>
+            {% endfor %}
+        </dl>
+    </div>
+{% endblock %}
