@@ -3,7 +3,7 @@ from app import app
 from app.users import users_list
 
 
-@app.route('/users/')
+@app.route('/users/', methods=['GET'])
 def users():
     """
     Create endpoint /users contains list of users.
@@ -19,7 +19,7 @@ def users():
     return render_template('users.html', title='Users list', users=final_list)
 
 
-@app.route('/users/api/')
+@app.route('/api/users/', methods=['GET'])
 def users_api():
     """
 
@@ -31,7 +31,7 @@ def users_api():
     return jsonify(final_list)
 
 
-@app.route('/department/')
+@app.route('/department/', methods=['GET'])
 def department():
     """
     Create endpoint /department contains list of departments.
@@ -45,7 +45,7 @@ def department():
     return render_template('departments.html', title='Departments list', users=final_list)
 
 
-@app.route('/department/api/')
+@app.route('/api/department/', methods=['GET'])
 def department_api():
     """
 
