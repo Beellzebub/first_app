@@ -56,7 +56,7 @@ def department_api():
     return jsonify(final_list)
 
 
-def depart_filter(depart_name):
+def depart_filter(depart_name=None):
     """
 
     :param depart_name:
@@ -65,18 +65,11 @@ def depart_filter(depart_name):
     temp_list = list()
     for user in users_list:
         if depart_name:
-            if depart_name in user['department']:
-                for temp_user in temp_list:
-                    if temp_user['department'] == user['department']:
-                        break
-                else:
-                    temp_list.append(user)
+            if depart_name in user['department'] and user['department'] not in temp_list:
+                temp_list.append(user['department'])
         else:
-            for temp_user in temp_list:
-                if temp_user['department'] == user['department']:
-                    break
-            else:
-                temp_list.append(user)
+            if user['department'] not in temp_list:
+                temp_list.append(user['department'])
     return temp_list
 
 
@@ -90,7 +83,7 @@ def users_filter(username=None, depart_name=None):
     temp_list = list()
     for user in users_list:
         if username and depart_name:
-            if username.lower() in user['username'] and depart_name == user['department']:
+            if username in user['username'] and depart_name == user['department']:
                 temp_list.append(user)
         elif username:
             if username in user['username']:
