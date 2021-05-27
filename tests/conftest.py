@@ -9,7 +9,7 @@ def request_to_server():
     def _set_route(route):
         client = app.test_client()
         res = client.get(route)
-        return res.get_json()
+        return res
 
     return _set_route
 
