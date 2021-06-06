@@ -23,7 +23,7 @@ def get_users_api():
 def post_users_api():
     new_user = request.json
     users_list.append(new_user)
-    return 'User successfully added.'
+    return 'User successfully added.', 201
 
 
 @app.route('/api/users/<int:user_id>', methods=['PUT'])
@@ -31,20 +31,18 @@ def put_users_api(user_id):
     idx, item = next((x for x in enumerate(users_list) if x[1]['id'] == user_id), (None, None))
     new_info = request.json
     if not item:
-        return 'Not user with this id', 400
-    users_list.pop(idx)
-    item.update(new_info)
-    users_list.append(new_info)
-    return 'Information about user successfully changed.'
+        return 'Not user with this id', 204
+    users_list[idx].update(new_info)
+    return 'Information about user successfully changed.', 202
 
 
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
 def del_users_api(user_id):
     idx, item = next((x for x in enumerate(users_list) if x[1]['id'] == user_id), (None, None))
     if not item:
-        return 'Not user with this id', 400
+        return 'Not user with this id', 204
     users_list.pop(idx)
-    return 'User successfully deleted.'
+    return 'User successfully deleted.', 202
 
 
 @app.route('/department', methods=['GET'])
