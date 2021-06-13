@@ -10,7 +10,7 @@ import psycopg2
 from psycopg2 import errors
 
 try:
-    connection = psycopg2.connect(user="postgres", password="112233")
+    connection = psycopg2.connect(user="postgres", password="postgres")
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
     sql_create_database = cursor.execute('CREATE DATABASE users')
@@ -19,14 +19,14 @@ try:
 except errors.lookup('42P04'):
     print('The database has already been created.')
 
-engine = create_engine('postgresql+psycopg2://postgres:112233@localhost:5432/users')
+engine = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/users')
 
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 Base = declarative_base()
 Base.query = session.query_property()
 
-from models import *
+from app.models import *
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,8 +35,10 @@ Base.metadata.create_all(bind=engine)
 def get_users_html():
     username = request.args.get('username')
     depart_name = request.args.get('department')
-    final_list = users_filter(username, depart_name)
-    return render_template('users.html', title='Users list', users=final_list)
+    response_from_db = Users.query.all()
+    serialized_response = [user.serialize() for user in response_from_db]
+    filtered_response = users_filter(serialized_response, username, depart_name)
+    return render_template('users.html', title='Users list', users=filtered_response)
 
 
 @app.route('/api/users/', methods=['GET'])
@@ -44,58 +46,57 @@ def get_users_api():
     username = request.args.get('username')
     depart_name = request.args.get('department')
     response_from_db = Users.query.all()
-    serialized = []
-    for user in response_from_db:
-        serialized.append({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'department': user.department,
-            'date_joined': user.date_joined
-        })
-    final_list = users_filter(serialized, username, depart_name)
-    return jsonify(final_list)
+    serialized_response = [user.serialize() for user in response_from_db]
+    filtered_response = users_filter(serialized_response, username, depart_name)
+    return jsonify(filtered_response)
 
 
 @app.route('/api/users/', methods=['POST'])
 def post_users_api():
-    new_one = Users(**request.json)
-    session.add(new_one)
+    new_user = Users(**request.json)
+    session.add(new_user)
     session.commit()
     return 'User successfully added.', 201
 
 
 @app.route('/api/users/<int:user_id>', methods=['PUT'])
 def put_users_api(user_id):
-    idx, item = next((x for x in enumerate(users_list) if x[1]['id'] == user_id), (None, None))
+    item = Users.query.filter(Users.id == user_id).first()
     new_info = request.json
     if not item:
         return 'Not user with this id', 204
-    users_list[idx].update(new_info)
+    for key, value in new_info.items():
+        setattr(item, key, value)
+    session.commit()
     return 'Information about user successfully changed.', 202
 
 
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
 def del_users_api(user_id):
-    idx, item = next((x for x in enumerate(users_list) if x[1]['id'] == user_id), (None, None))
+    item = Users.query.filter(Users.id == user_id).first()
     if not item:
         return 'Not user with this id', 204
-    users_list.pop(idx)
+    session.delete(item)
+    session.comit()
     return 'User successfully deleted.', 202
 
 
 @app.route('/department', methods=['GET'])
 def get_department_html():
     depart_name = request.args.get('name')
-    final_list = depart_filter(depart_name)
-    return render_template('departments.html', title='Departments list', users=final_list)
+    response_from_db = Users.query.all()
+    serialized_response = [user.serialize() for user in response_from_db]
+    filtered_response = depart_filter(serialized_response, depart_name)
+    return render_template('departments.html', title='Departments list', users=filtered_response)
 
 
 @app.route('/api/department/', methods=['GET'])
 def get_department_api():
     depart_name = request.args.get('name')
-    final_list = depart_filter(depart_name)
-    return jsonify(final_list)
+    response_from_db = Users.query.all()
+    serialized_response = [user.serialize() for user in response_from_db]
+    filtered_response = depart_filter(serialized_response, depart_name)
+    return jsonify(filtered_response)
 
 
 @app.teardown_appcontext
@@ -120,9 +121,9 @@ def users_filter(list_for_filter, username=None, depart_name=None):
     return temp_list
 
 
-def depart_filter(depart_name=None):
+def depart_filter(list_for_filter, depart_name=None):
     temp_list = list()
-    for user in users_list:
+    for user in list_for_filter:
         if depart_name:
             if depart_name in user['department'] and user['department'] not in temp_list:
                 temp_list.append(user['department'])
