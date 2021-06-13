@@ -1,4 +1,4 @@
-from routes import db, session, Base
+from app.routes import db, session, Base
 
 
 class Users(Base):
@@ -15,3 +15,12 @@ class Users(Base):
         self.email = email
         self.department = department
         self.date_joined = date_joined
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'department': self.department,
+            'date_joined': self.date_joined,
+        }
