@@ -9,8 +9,7 @@ class Users(Base):
     department = db.Column(db.String(250), nullable=False)
     date_joined = db.Column(db.String(250), nullable=False)
 
-    def __init__(self, id, username, email, department, date_joined):
-        self.id = id
+    def __init__(self, username, email, department, date_joined):
         self.username = username
         self.email = email
         self.department = department
