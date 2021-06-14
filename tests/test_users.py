@@ -1,6 +1,10 @@
 from datetime import datetime
 
 
+def test_model(test_user):
+    assert test_user.username == 'TestUser'
+
+
 def test_duplicate_id(request_to_db):
     temp_set = set()
     for item in request_to_db:

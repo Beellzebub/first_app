@@ -27,6 +27,27 @@ class TestUsers:
         assert request_to_server(req).get_json() == [item for item in request_to_db
                                                      if item.department == f'{dep}' and item.username == f'{user}']
 
+    def test_post_request(self, request_to_server, test_user):
+        test_data = {
+            'username': 'Steve',
+            'email': 'user2@test.com',
+            'department': 'frontend',
+            'date_joined': '2020-01-20T09:00:00'
+        }
+        assert request_to_server('/api/users/', 'POST', test_data).status_code == 201
+
+    def test_put_request(self, request_to_server, test_user):
+        test_data = {
+            'username': 'Thor',
+            'department': 'backend'
+        }
+        user_id = test_user.id
+        assert request_to_server(f'/api/users/{user_id}', 'PUT', test_data).status_code == 202
+
+    def test_delete_request(self, request_to_server, test_user):
+        user_id = test_user.id
+        assert request_to_server(f'/api/users/{user_id}', 'DELETE').status_code == 202
+
 
 class TestDepartment:
     def test_get_request(self, request_to_server):
