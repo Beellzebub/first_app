@@ -16,6 +16,9 @@ class Users(Base):
         self.department = department
         self.date_joined = date_joined
 
+    def __str__(self):
+        return f'id: {self.id}, username: {self.username}'
+
     def serialize(self):
         return {
             'id': self.id,

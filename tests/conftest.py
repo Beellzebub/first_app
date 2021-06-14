@@ -1,5 +1,6 @@
 import pytest
 from app import app
+from app.models import Users
 from app.users import users_list
 
 
@@ -16,4 +17,13 @@ def request_to_server():
 
 @pytest.fixture()
 def request_to_db():
-    return users_list
+    return Users.query.all()
+
+
+# t = [item.serialize() for item in Users.query.all() if item.username == f'Hulk']
+# print(t)
+
+
+# for user in Users.query.all():
+#     print(user)
+# print(len(Users.query.all()))

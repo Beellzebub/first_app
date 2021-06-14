@@ -77,7 +77,7 @@ def del_users_api(user_id):
     if not item:
         return 'Not user with this id', 204
     session.delete(item)
-    session.comit()
+    session.commit()
     return 'User successfully deleted.', 202
 
 
