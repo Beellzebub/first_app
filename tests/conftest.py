@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from app import app
 from app.routes import Base, engine, session as db_session
@@ -66,4 +68,25 @@ def request_to_server():
 @pytest.fixture()
 def request_to_db():
     return Users.query.all()
+
+
+@pytest.fixture(autouse=True)
+def good_message():
+    print('Good test always', end=' ')
+
+
+@pytest.fixture(scope='function', autouse=True)
+def logs_start_info(request, logs_failed_info):
+    logging.info(request.node.nodeid)
+
+
+@pytest.fixture(scope='session')
+def logs_failed_info(request):
+    logging.info('Start tests:')
+    yield
+    logging.info('Last failed:')
+    key = r'cache\lastfailed'
+    failed_dict = request.config.cache.get(key, {})
+    for failed_test in failed_dict.keys():
+        logging.info(failed_test)
 
