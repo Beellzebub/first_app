@@ -1,5 +1,5 @@
 import logging
-
+import datetime
 import pytest
 from app import app
 from app.routes import Base, engine, session as db_session
@@ -19,7 +19,6 @@ def test_app():
 
 @pytest.fixture(scope='function')
 def session(test_app):
-
     yield db_session
 
     db_session.close_all()
@@ -50,7 +49,6 @@ def test_user(session):
 
 @pytest.fixture()
 def request_to_server():
-
     def _set_route(route, method='GET', data=dict):
         client = app.test_client()
         if method == 'GET':
@@ -70,23 +68,32 @@ def request_to_db():
     return Users.query.all()
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport():
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.when == "call" and rep.failed:
+        logging.info('\nFailed:')
+        logging.info(rep.nodeid)
+
+
 @pytest.fixture(autouse=True)
 def good_message():
     print('Good test always', end=' ')
 
 
 @pytest.fixture(scope='function', autouse=True)
-def logs_start_info(request, logs_failed_info):
+def logs_started_tests(request, logs_last_failed_info):
     logging.info(request.node.nodeid)
 
 
 @pytest.fixture(scope='session')
-def logs_failed_info(request):
-    logging.info('Start tests:')
+def logs_last_failed_info(request):
+    logging.info(f'[{datetime.datetime.today().strftime("%d-%m-%YT%H:%M:%S")}]')
+    logging.info('Running tests:')
     yield
-    logging.info('Last failed:')
+    logging.info('\nLast failed:')
     key = r'cache\lastfailed'
     failed_dict = request.config.cache.get(key, {})
     for failed_test in failed_dict.keys():
         logging.info(failed_test)
-
