@@ -32,19 +32,30 @@ def test_user(session):
         department='TestDepartment',
         date_joined='2020-01-20T09:00:00'
     )
-    session.add(user)
-    session.commit()
-
     yield user
 
 
-# @pytest.fixture(scope='function')
-# def clean_user(session):
-#
-#     yield
-#
-#     session.delete(user)
-#     session.commit()
+@pytest.fixture(scope='function')
+def add_user(session, test_user):
+    session.add(test_user)
+    session.commit()
+
+
+@pytest.fixture(scope='function')
+def del_user(session, test_user):
+    yield
+    item = test_user.query.filter(test_user.username == 'TestUser').first()
+    session.delete(item)
+    session.commit()
+
+
+@pytest.fixture(scope='function')
+def add_and_del_user(session, test_user):
+    session.add(test_user)
+    session.commit()
+    yield
+    session.delete(test_user)
+    session.commit()
 
 
 @pytest.fixture()

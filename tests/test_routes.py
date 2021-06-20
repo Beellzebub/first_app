@@ -27,24 +27,30 @@ class TestUsers:
         assert request_to_server(req).get_json() == [item for item in request_to_db
                                                      if item.department == f'{dep}' and item.username == f'{user}']
 
-    def test_post_request(self, request_to_server, test_user):
+    def test_post_request(self, request_to_server, test_user, del_user):
         test_data = {
-            'username': 'Steve',
-            'email': 'user2@test.com',
-            'department': 'frontend',
-            'date_joined': '2020-01-20T09:00:00'
+            'username': test_user.username,
+            'email': test_user.email,
+            'department': test_user.department,
+            'date_joined': test_user.date_joined
         }
         assert request_to_server('/api/users/', 'POST', test_data).status_code == 201
+        req = f'/api/users/?username={test_user.username}&department={test_user.department}'
+        assert len(request_to_server(req).get_json()) != 0
 
-    def test_put_request(self, request_to_server, test_user):
+    def test_put_request(self, request_to_server, test_user, add_and_del_user):
         test_data = {
             'username': 'Thor',
             'department': 'backend'
         }
         user_id = test_user.id
         assert request_to_server(f'/api/users/{user_id}', 'PUT', test_data).status_code == 202
+        name_key = 'username'
+        depart_key = 'department'
+        req = f'/api/users/?username={test_data[name_key]}&department={test_data[depart_key]}'
+        assert len(request_to_server(req).get_json()) != 0
 
-    def test_delete_request(self, request_to_server, test_user):
+    def test_delete_request(self, request_to_server, test_user, add_user):
         user_id = test_user.id
         assert request_to_server(f'/api/users/{user_id}', 'DELETE').status_code == 202
 
