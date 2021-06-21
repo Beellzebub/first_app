@@ -1,7 +1,7 @@
 import logging
 import datetime
 import pytest
-from app import app
+from app.routes import app
 from app.routes import Base, engine, session as db_session
 from app.models import Users
 

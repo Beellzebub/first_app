@@ -1,4 +1,5 @@
-from app.routes import db, session, Base
+import sqlalchemy as db
+from routes import Base
 
 
 class Users(Base):

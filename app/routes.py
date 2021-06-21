@@ -1,16 +1,16 @@
-from flask import render_template, request, jsonify
+import psycopg2
+from psycopg2 import errors
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from app import app
-from app.users import users_list
-import sqlalchemy as db
+from flask import Flask
+from flask import render_template, request, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-import psycopg2
-from psycopg2 import errors
+
+app = Flask(__name__)
 
 try:
-    connection = psycopg2.connect(user="postgres", password="postgres")
+    connection = psycopg2.connect(user="postgres", password="112233")
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
     sql_create_database = cursor.execute('CREATE DATABASE users')
@@ -19,14 +19,14 @@ try:
 except errors.lookup('42P04'):
     print('The database has already been created.')
 
-engine = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/users')
+engine = create_engine('postgresql+psycopg2://postgres:112233@localhost:5432/users')
 
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 Base = declarative_base()
 Base.query = session.query_property()
 
-from app.models import *
+from models import *
 
 Base.metadata.create_all(bind=engine)
 
