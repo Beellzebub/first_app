@@ -9,8 +9,19 @@ from sqlalchemy.ext.declarative import declarative_base
 
 app = Flask(__name__)
 
+password = 'postgres'
+
 try:
-    connection = psycopg2.connect(user="postgres", password="112233", host='localhost', port=5432)
+    connection = psycopg2.connect(user='postgres', password=password, host='localhost', port=5432)
+    connection.close()
+except psycopg2.OperationalError:
+    print('Server run in dockers container.')
+    host = 'host.docker.internal'
+else:
+    host = 'localhost'
+
+try:
+    connection = psycopg2.connect(user='postgres', password=password, host=host, port=5432)
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
     sql_create_database = cursor.execute('CREATE DATABASE users')
@@ -19,7 +30,7 @@ try:
 except errors.lookup('42P04'):
     print('The database has already been created.')
 
-engine = create_engine('postgresql+psycopg2://postgres:112233@localhost:5432/users')
+engine = create_engine(f'postgresql+psycopg2://postgres:{password}@{host}:5432/users')
 
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
