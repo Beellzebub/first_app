@@ -1,5 +1,5 @@
 import sqlalchemy as db
-from routes import Base
+from app.routes import Base
 
 
 class Users(Base):

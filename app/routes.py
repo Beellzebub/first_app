@@ -37,7 +37,7 @@ session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=en
 Base = declarative_base()
 Base.query = session.query_property()
 
-from models import *
+from app.models import *
 
 Base.metadata.create_all(bind=engine)
 
